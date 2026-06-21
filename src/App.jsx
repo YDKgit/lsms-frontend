@@ -40,7 +40,6 @@ export default function App() {
             <Route path="wastes" element={<WasteListPage />} />
             <Route path="wastes/new" element={<WasteFormPage />} />
             <Route path="wastes/:wasteId" element={<WasteDetailPage />} />
-            <Route path="wastes/:wasteId/edit" element={<WasteFormPage />} />
             <Route path="chemicals/new" element={<ChemicalRegisterPage />} />
             <Route path="chemicals/:chemicalId" element={<ChemicalDetailPage />} />
             <Route path="chemicals" element={<ChemicalListPage />} />

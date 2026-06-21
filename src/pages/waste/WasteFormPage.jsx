@@ -1,14 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { getLabs } from '../../api/lab';
-import { createWaste, getWaste, getWasteTypes, updateWaste } from '../../api/waste';
+import { createWaste, getWasteTypes } from '../../api/waste';
 import { useAuth } from '../../context/AuthContext';
 
-const STATUS_OPTIONS = ['REGISTERED', 'STORED', 'DISPOSAL_REQUESTED', 'DISPOSED'];
-
 export default function WasteFormPage() {
-  const { wasteId } = useParams();
-  const isEdit = Boolean(wasteId);
   const { token } = useAuth();
   const navigate = useNavigate();
 
@@ -21,7 +17,6 @@ export default function WasteFormPage() {
     wasteTypeCode: '',
     generatedLabId: '',
     storageLocation: '',
-    status: 'REGISTERED',
   });
 
   useEffect(() => {
@@ -33,19 +28,6 @@ export default function WasteFormPage() {
       .catch((err) => setError(err.message));
   }, [token]);
 
-  useEffect(() => {
-    if (!isEdit) return;
-    getWaste(token, wasteId)
-      .then((w) => setForm({
-        wasteName: w.wasteName,
-        wasteTypeCode: w.wasteTypeCode,
-        generatedLabId: String(w.generatedLabId),
-        storageLocation: w.storageLocation,
-        status: w.status,
-      }))
-      .catch((err) => setError(err.message));
-  }, [token, wasteId, isEdit]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -55,16 +37,10 @@ export default function WasteFormPage() {
       wasteTypeCode: form.wasteTypeCode,
       generatedLabId: Number(form.generatedLabId),
       storageLocation: form.storageLocation,
-      ...(isEdit ? { status: form.status } : {}),
     };
     try {
-      if (isEdit) {
-        const updated = await updateWaste(token, wasteId, body);
-        navigate(`/wastes/${updated.id}`);
-      } else {
-        const created = await createWaste(token, body);
-        navigate(`/wastes/${created.id}`);
-      }
+      const created = await createWaste(token, body);
+      navigate(`/wastes/${created.id}`);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -74,7 +50,7 @@ export default function WasteFormPage() {
 
   return (
     <div className="page">
-      <h2>{isEdit ? '폐기물 수정' : '폐기물 등록'}</h2>
+      <h2>폐기물 등록</h2>
       {error && <p className="error-text">{error}</p>}
       <form className="card form-card" onSubmit={handleSubmit}>
         <label>폐기물명
@@ -95,16 +71,9 @@ export default function WasteFormPage() {
         <label>보관 위치
           <input required value={form.storageLocation} onChange={(e) => setForm({ ...form, storageLocation: e.target.value })} />
         </label>
-        {isEdit && (
-          <label>상태
-            <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
-              {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
-            </select>
-          </label>
-        )}
         <div className="button-row">
           <button type="submit" className="btn btn-primary" disabled={loading}>
-            {isEdit ? '저장' : '등록'}
+            {loading ? '등록 중...' : '등록'}
           </button>
           <button type="button" className="btn btn-outline" onClick={() => navigate(-1)}>취소</button>
         </div>

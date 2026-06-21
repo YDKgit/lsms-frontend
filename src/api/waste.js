@@ -15,11 +15,3 @@ export function getWasteTypes(token) {
 export function createWaste(token, body) {
   return apiRequest('/api/wastes', { method: 'POST', token, body });
 }
-
-export function updateWaste(token, wasteId, body) {
-  return apiRequest(`/api/wastes/${wasteId}`, { method: 'PUT', token, body });
-}
-
-export function deleteWaste(token, wasteId) {
-  return apiRequest(`/api/wastes/${wasteId}`, { method: 'DELETE', token });
-}
